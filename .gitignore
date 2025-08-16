@@ -1,0 +1,21 @@
+# Node
+node_modules/
+dist/
+
+# Prisma / SQLite
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
+
+# Env
+.env
+.env.*
+!*.env.example
+
+# Logs
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db

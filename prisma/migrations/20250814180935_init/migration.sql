@@ -1,0 +1,34 @@
+-- CreateTable
+CREATE TABLE "Product" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "tipo" TEXT NOT NULL,
+    "color" TEXT NOT NULL,
+    "talla" TEXT NOT NULL,
+    "cantidad" INTEGER NOT NULL,
+    "precio" REAL NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL
+);
+
+-- CreateTable
+CREATE TABLE "Sale" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "cliente" TEXT NOT NULL,
+    "productoId" INTEGER NOT NULL,
+    "cantidad" INTEGER NOT NULL DEFAULT 1,
+    "fecha" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "formaPago" TEXT NOT NULL,
+    "total" REAL NOT NULL,
+    "saldoPendiente" REAL NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL,
+    CONSTRAINT "Sale_productoId_fkey" FOREIGN KEY ("productoId") REFERENCES "Product" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "Payment" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "saleId" INTEGER NOT NULL,
+    "monto" REAL NOT NULL,
+    "fecha" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "Payment_saleId_fkey" FOREIGN KEY ("saleId") REFERENCES "Sale" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

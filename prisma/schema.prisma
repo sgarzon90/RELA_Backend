@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id        Int      @id @default(autoincrement())
+  tipo      String
+  color     String
+  talla     String
+  cantidad  Int
+  precio    Float
+  ventas    Sale[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Sale {
+  id             Int      @id @default(autoincrement())
+  cliente        String
+  producto       Product  @relation(fields: [productoId], references: [id])
+  productoId     Int
+  cantidad       Int      @default(1)
+  fecha          DateTime @default(now())
+  formaPago      String   // Antes era enum PaymentType
+  total          Float
+  saldoPendiente Float    @default(0)
+  status         String   // Antes era enum SaleStatus
+  payments       Payment[]
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  sale      Sale     @relation(fields: [saleId], references: [id])
+  saleId    Int
+  monto     Float
+  fecha     DateTime @default(now())
+}
