@@ -1,5 +1,8 @@
-import { IsEnum, IsInt, IsNotEmpty, IsString, Min } from 'class-validator';
-export enum PaymentType { CONTADO = 'CONTADO', CREDITO = 'CREDITO' }
+import { IsEnum, IsInt, IsNotEmpty, IsString, Min } from "class-validator";
+export enum PaymentType {
+  CONTADO = "CONTADO",
+  CREDITO = "CREDITO",
+}
 export class CreateSaleDto {
   @IsString() @IsNotEmpty() cliente!: string;
   @IsInt() productoId!: number;
