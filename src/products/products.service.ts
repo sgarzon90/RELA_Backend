@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateProductDto } from "./dto/create-product.dto";
 import { UpdateProductDto } from "./dto/update-product.dto";
 import { join } from "path";
-import { createWriteStream, existsSync, mkdirSync } from "fs";
+import { createWriteStream, existsSync, mkdirSync, unlinkSync } from "fs";
 
 @Injectable()
 export class ProductsService {
@@ -29,7 +34,7 @@ export class ProductsService {
         talla,
         cantidad: Number(cantidad),
         precio: Number(precio),
-        fotoUrl: file.originalname,
+        fotoUrl: file ? file.originalname : null,
       },
     });
   }
@@ -60,7 +65,25 @@ export class ProductsService {
     return this.prisma.product.update({ where: { id }, data });
   }
   async remove(id: number) {
-    await this.findOne(id);
-    return this.prisma.product.delete({ where: { id } });
+    const product = await this.findOne(id);
+    if (product && product.fotoUrl && typeof product.fotoUrl === "string") {
+      const uploadsDir = join(__dirname, "..", "..", "uploads");
+      const path = join(uploadsDir, product.fotoUrl);
+      if (existsSync(path)) {
+        unlinkSync(path);
+      }
+    }
+    try {
+      return await this.prisma.product.delete({ where: { id } });
+    } catch (e) {
+      if (e instanceof Prisma.PrismaClientKnownRequestError) {
+        if (e.code === "P2003") {
+          throw new BadRequestException(
+            "No se puede eliminar el producto porque tiene ventas asociadas.",
+          );
+        }
+      }
+      throw e;
+    }
   }
 }
