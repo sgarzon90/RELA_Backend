@@ -1,51 +1,58 @@
+// Define el generador de cliente de Prisma.
 generator client {
   provider = "prisma-client-js"
 }
 
+// Define la fuente de datos de la base de datos.
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider = "sqlite" // Usa SQLite como proveedor de la base de datos.
+  url      = env("DATABASE_URL") // La URL de la base de datos se obtiene de las variables de entorno.
 }
 
+// Define el modelo de Producto.
 model Product {
-  id        Int      @id @default(autoincrement())
-  tipo      String
-  color     String
-  talla     String
-  cantidad  Int
-  precio    Float
-  fotoUrl   String?   
-  ventas    Sale[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement()) // Clave primaria, autoincremental.
+  tipo      String   // Tipo de producto.
+  color     String   // Color del producto.
+  talla     String   // Talla del producto.
+  cantidad  Int      // Cantidad en stock.
+  precio    Float    // Precio del producto.
+  fotoUrl   String?  // URL de la foto del producto (opcional).
+  ventas    Sale[]   // Relación uno a muchos con el modelo Sale.
+  createdAt DateTime @default(now()) // Fecha de creación del registro.
+  updatedAt DateTime @updatedAt // Fecha de última actualización del registro.
 }
 
+// Define el modelo de Venta.
 model Sale {
-  id             Int      @id @default(autoincrement())
-  cliente        String
-  producto       Product  @relation(fields: [productoId], references: [id])
-  productoId     Int
-  cantidad       Int      @default(1)
-  fecha          DateTime @default(now())
-  formaPago      String   // Antes era enum PaymentType
-  total          Float
-  saldoPendiente Float    @default(0)
-  status         String   // Antes era enum SaleStatus
-  payments       Payment[]
+  id             Int      @id @default(autoincrement()) // Clave primaria, autoincremental.
+  cliente        String   // Nombre del cliente.
+  producto       Product  @relation(fields: [productoId], references: [id]) // Relación con el modelo Product.
+  productoId     Int      // Clave foránea para el producto.
+  cantidad       Int      @default(1) // Cantidad de productos vendidos.
+  fecha          DateTime @default(now()) // Fecha de la venta.
+  formaPago      String   // Forma de pago (ej. "efectivo", "tarjeta").
+  total          Float    // Total de la venta.
+  saldoPendiente Float    @default(0) // Saldo pendiente de pago.
+  status         String   // Estado de la venta (ej. "pagada", "pendiente").
+  payments       Payment[] // Relación uno a muchos con el modelo Payment.
 }
 
+// Define el modelo de Pago.
 model Payment {
-  id        Int      @id @default(autoincrement())
-  sale      Sale     @relation(fields: [saleId], references: [id])
-  saleId    Int
-  monto     Float
-  fecha     DateTime @default(now())
+  id        Int      @id @default(autoincrement()) // Clave primaria, autoincremental.
+  sale      Sale     @relation(fields: [saleId], references: [id]) // Relación con el modelo Sale.
+  saleId    Int      // Clave foránea para la venta.
+  monto     Float    // Monto del pago.
+  fecha     DateTime @default(now()) // Fecha del pago.
 }
 
+// Define el modelo de Usuario.
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        Int      @id @default(autoincrement()) // Clave primaria, autoincremental.
+  email     String   @unique // Correo electrónico del usuario, debe ser único.
+  password  String   // Contraseña del usuario.
+  role      String   @default("admin") // Rol del usuario, por defecto es "admin".
+  createdAt DateTime @default(now()) // Fecha de creación del registro.
+  updatedAt DateTime @updatedAt // Fecha de última actualización del registro.
 }

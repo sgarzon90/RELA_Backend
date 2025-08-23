@@ -1,3 +1,4 @@
+// Importa los módulos necesarios de NestJS, Prisma y Node.js.
 import {
   BadRequestException,
   Injectable,
@@ -13,11 +14,12 @@ import { createWriteStream, existsSync, mkdirSync, unlinkSync } from "fs";
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService) {}
+
+  // Crea un nuevo producto.
   create(dto: CreateProductDto, file: Express.Multer.File) {
     const { tipo, color, talla, cantidad, precio } = dto;
-    const fotoUrl = file ? `/uploads/${file.filename}` : null;
 
-    // Guardar el archivo en el sistema de archivos
+    // Guarda el archivo en el sistema de archivos si se proporciona uno.
     if (file) {
       const uploadsDir = join(__dirname, "..", "..", "uploads");
       if (!existsSync(uploadsDir)) {
@@ -27,6 +29,7 @@ export class ProductsService {
       writeStream.write(file.buffer);
     }
 
+    // Crea el producto en la base de datos.
     return this.prisma.product.create({
       data: {
         tipo,
@@ -38,20 +41,27 @@ export class ProductsService {
       },
     });
   }
+
+  // Obtiene todos los productos.
   findAll() {
     return this.prisma.product.findMany({ orderBy: { id: "desc" } });
   }
+
+  // Obtiene un producto por su ID.
   async findOne(id: number) {
     const product = await this.prisma.product.findUnique({ where: { id } });
     if (!product) throw new NotFoundException("Producto no encontrado");
     return product;
   }
+
+  // Actualiza un producto por su ID.
   async update(id: number, dto: UpdateProductDto, file: Express.Multer.File) {
     await this.findOne(id);
     const data: any = { ...dto };
     if (dto.cantidad) data.cantidad = Number(dto.cantidad);
     if (dto.precio) data.precio = Number(dto.precio);
 
+    // Si se proporciona un archivo, lo guarda y actualiza la URL de la foto.
     if (file) {
       const uploadsDir = join(__dirname, "..", "..", "uploads");
       if (!existsSync(uploadsDir)) {
@@ -64,8 +74,11 @@ export class ProductsService {
 
     return this.prisma.product.update({ where: { id }, data });
   }
+
+  // Elimina un producto por su ID.
   async remove(id: number) {
     const product = await this.findOne(id);
+    // Si el producto tiene una foto, la elimina del sistema de archivos.
     if (product && product.fotoUrl && typeof product.fotoUrl === "string") {
       const uploadsDir = join(__dirname, "..", "..", "uploads");
       const path = join(uploadsDir, product.fotoUrl);
@@ -74,8 +87,10 @@ export class ProductsService {
       }
     }
     try {
+      // Intenta eliminar el producto de la base de datos.
       return await this.prisma.product.delete({ where: { id } });
     } catch (e) {
+      // Si hay un error de clave foránea, lanza una excepción personalizada.
       if (e instanceof Prisma.PrismaClientKnownRequestError) {
         if (e.code === "P2003") {
           throw new BadRequestException(

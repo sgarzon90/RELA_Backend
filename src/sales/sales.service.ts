@@ -1,3 +1,4 @@
+// Importa los módulos necesarios de NestJS y Prisma.
 import {
   BadRequestException,
   Injectable,
@@ -6,9 +7,12 @@ import {
 import { PrismaService } from "../prisma/prisma.service";
 import { CreateSaleDto, PaymentType } from "./dto/create-sale.dto";
 import { UpdateSaleDto } from "./dto/update-sale.dto";
+
 @Injectable()
 export class SalesService {
   constructor(private prisma: PrismaService) {}
+
+  // Crea una nueva venta.
   async create(dto: CreateSaleDto) {
     const product = await this.prisma.product.findUnique({
       where: { id: dto.productoId },
@@ -16,10 +20,13 @@ export class SalesService {
     if (!product) throw new NotFoundException("Producto no encontrado");
     if (product.cantidad < dto.cantidad)
       throw new BadRequestException("Inventario insuficiente");
+
     const total = Number(product.precio) * dto.cantidad;
     const isCredito = dto.formaPago === PaymentType.CREDITO;
     const saldoPendiente = isCredito ? total : 0;
     const status = isCredito ? "PENDIENTE" : "PAZ_Y_SALVO";
+
+    // Usa una transacción para asegurar la consistencia de los datos.
     const result = await this.prisma.$transaction(async (tx) => {
       const sale = await tx.sale.create({
         data: {
@@ -32,6 +39,7 @@ export class SalesService {
           status: status as any,
         },
       });
+      // Actualiza el stock del producto.
       await tx.product.update({
         where: { id: dto.productoId },
         data: { cantidad: product.cantidad - dto.cantidad },
@@ -40,6 +48,8 @@ export class SalesService {
     });
     return result;
   }
+
+  // Obtiene todas las ventas, con un filtro opcional por estado.
   findAll(status?: "PENDIENTE" | "PAZ_Y_SALVO") {
     return this.prisma.sale.findMany({
       where: status ? { status } : undefined,
@@ -47,6 +57,8 @@ export class SalesService {
       orderBy: { id: "desc" },
     });
   }
+
+  // Obtiene una venta por su ID.
   findOne(id: number) {
     return this.prisma.sale.findUnique({
       where: { id },
@@ -54,6 +66,7 @@ export class SalesService {
     });
   }
 
+  // Actualiza una venta por su ID.
   async update(id: number, dto: UpdateSaleDto) {
     const sale = await this.findOne(id);
     if (!sale) throw new NotFoundException("Venta no encontrada");
@@ -80,21 +93,23 @@ export class SalesService {
     });
   }
 
+  // Elimina una venta por su ID.
   async remove(id: number) {
     const sale = await this.findOne(id);
     if (!sale) throw new NotFoundException("Venta no encontrada");
 
+    // Usa una transacción para asegurar la consistencia de los datos.
     return this.prisma.$transaction(async (tx) => {
-      // Devolver el stock al producto
+      // Devuelve el stock al producto.
       await tx.product.update({
         where: { id: sale.productoId },
         data: { cantidad: { increment: sale.cantidad } },
       });
 
-      // Eliminar pagos asociados
+      // Elimina los pagos asociados a la venta.
       await tx.payment.deleteMany({ where: { saleId: id } });
 
-      // Eliminar la venta
+      // Elimina la venta.
       return tx.sale.delete({ where: { id } });
     });
   }
