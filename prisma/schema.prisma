@@ -12,8 +12,10 @@ datasource db {
 // Define el modelo de Producto.
 model Product {
   id        Int      @id @default(autoincrement()) // Clave primaria, autoincremental.
-  tipo      String   // Tipo de producto.
-  color     String   // Color del producto.
+  tipo      Tipo     @relation(fields: [tipoId], references: [id])
+  tipoId    Int
+  color     Color    @relation(fields: [colorId], references: [id])
+  colorId   Int
   talla     String   // Talla del producto.
   cantidad  Int      // Cantidad en stock.
   precio    Float    // Precio del producto.
@@ -21,6 +23,20 @@ model Product {
   ventas    Sale[]   // Relación uno a muchos con el modelo Sale.
   createdAt DateTime @default(now()) // Fecha de creación del registro.
   updatedAt DateTime @updatedAt // Fecha de última actualización del registro.
+}
+
+// Define el modelo de Tipo.
+model Tipo {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  productos Product[]
+}
+
+// Define el modelo de Color.
+model Color {
+  id        Int      @id @default(autoincrement())
+  nombre    String   @unique
+  productos Product[]
 }
 
 // Define el modelo de Venta.

@@ -64,17 +64,22 @@ export class ReportsService {
     const products = await this.prisma.product.findMany({
       where: {
         id: {
-          in: sales.map((s) => s.productoId),
+          in: sales.map((s: any) => s.productoId),
         },
+      },
+      include: {
+        tipo: true,
+        color: true,
       },
     });
 
     // Combina la información de los productos con la cantidad vendida.
-    return sales.map((s) => {
-      const product = products.find((p) => p.id === s.productoId);
+    return sales.map((s: any) => {
+      const product = products.find((p: any) => p.id === s.productoId);
       return {
         ...product,
         cantidad: s._sum.cantidad,
+        nombre: `${product?.tipo.nombre} ${product?.color.nombre} ${product?.talla}`,
       };
     });
   }

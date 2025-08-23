@@ -17,7 +17,7 @@ export class ProductsService {
 
   // Crea un nuevo producto.
   create(dto: CreateProductDto, file: Express.Multer.File) {
-    const { tipo, color, talla, cantidad, precio } = dto;
+    const { tipoId, colorId, talla, cantidad, precio } = dto;
 
     // Guarda el archivo en el sistema de archivos si se proporciona uno.
     if (file) {
@@ -32,8 +32,8 @@ export class ProductsService {
     // Crea el producto en la base de datos.
     return this.prisma.product.create({
       data: {
-        tipo,
-        color,
+        tipo: { connect: { id: Number(tipoId) } },
+        color: { connect: { id: Number(colorId) } },
         talla,
         cantidad: Number(cantidad),
         precio: Number(precio),
@@ -44,7 +44,10 @@ export class ProductsService {
 
   // Obtiene todos los productos.
   findAll() {
-    return this.prisma.product.findMany({ orderBy: { id: "desc" } });
+    return this.prisma.product.findMany({
+      include: { tipo: true, color: true },
+      orderBy: { id: "desc" },
+    });
   }
 
   // Obtiene un producto por su ID.
@@ -60,6 +63,8 @@ export class ProductsService {
     const data: any = { ...dto };
     if (dto.cantidad) data.cantidad = Number(dto.cantidad);
     if (dto.precio) data.precio = Number(dto.precio);
+    if (dto.tipoId) data.tipoId = Number(dto.tipoId);
+    if (dto.colorId) data.colorId = Number(dto.colorId);
 
     // Si se proporciona un archivo, lo guarda y actualiza la URL de la foto.
     if (file) {

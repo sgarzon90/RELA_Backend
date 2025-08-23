@@ -53,7 +53,15 @@ export class SalesService {
   findAll(status?: "PENDIENTE" | "PAZ_Y_SALVO") {
     return this.prisma.sale.findMany({
       where: status ? { status } : undefined,
-      include: { producto: true, payments: true },
+      include: {
+        producto: {
+          include: {
+            tipo: true,
+            color: true,
+          },
+        },
+        payments: true,
+      },
       orderBy: { id: "desc" },
     });
   }
@@ -62,7 +70,15 @@ export class SalesService {
   findOne(id: number) {
     return this.prisma.sale.findUnique({
       where: { id },
-      include: { producto: true, payments: true },
+      include: {
+        producto: {
+          include: {
+            tipo: true,
+            color: true,
+          },
+        },
+        payments: true,
+      },
     });
   }
 

@@ -7,5 +7,6 @@ import { PaymentsModule } from './payments/payments.module';
 import { ReportsModule } from './reports/reports.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-@Module({ imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ProductsModule, SalesModule, PaymentsModule, ReportsModule, AuthModule, UsersModule] })
+import { AttributesModule } from './attributes/attributes.module';
+@Module({ imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ProductsModule, SalesModule, PaymentsModule, ReportsModule, AuthModule, UsersModule, AttributesModule] })
 export class AppModule {}

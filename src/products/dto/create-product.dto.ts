@@ -13,14 +13,14 @@ import {
 // Define el DTO (Data Transfer Object) para crear un producto.
 export class CreateProductDto {
   // Valida que el tipo sea una cadena de texto y no esté vacío.
-  @IsString()
-  @IsNotEmpty()
-  tipo!: string;
+  @Transform(({ value }) => Number(value))
+  @IsInt()
+  tipoId!: number;
 
   // Valida que el color sea una cadena de texto y no esté vacío.
-  @IsString()
-  @IsNotEmpty()
-  color!: string;
+  @Transform(({ value }) => Number(value))
+  @IsInt()
+  colorId!: number;
 
   // Valida que la talla sea una cadena de texto y no esté vacía.
   @IsString()
