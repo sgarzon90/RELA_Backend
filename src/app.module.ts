@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProductsModule } from './products/products.module';
 import { SalesModule } from './sales/sales.module';
@@ -8,5 +10,21 @@ import { ReportsModule } from './reports/reports.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { AttributesModule } from './attributes/attributes.module';
-@Module({ imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, ProductsModule, SalesModule, PaymentsModule, ReportsModule, AuthModule, UsersModule, AttributesModule] })
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    ServeStaticModule.forRoot({
+      rootPath: join(process.cwd(), 'uploads'),
+      serveRoot: '/uploads',
+    }),
+    PrismaModule,
+    ProductsModule,
+    SalesModule,
+    PaymentsModule,
+    ReportsModule,
+    AuthModule,
+    UsersModule,
+    AttributesModule,
+  ],
+})
 export class AppModule {}

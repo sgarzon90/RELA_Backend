@@ -21,7 +21,7 @@ export class ProductsService {
 
     // Guarda el archivo en el sistema de archivos si se proporciona uno.
     if (file) {
-      const uploadsDir = join(__dirname, "..", "..", "uploads");
+      const uploadsDir = join(process.cwd(), "uploads");
       if (!existsSync(uploadsDir)) {
         mkdirSync(uploadsDir, { recursive: true });
       }
@@ -68,7 +68,7 @@ export class ProductsService {
 
     // Si se proporciona un archivo, lo guarda y actualiza la URL de la foto.
     if (file) {
-      const uploadsDir = join(__dirname, "..", "..", "uploads");
+      const uploadsDir = join(process.cwd(), "uploads");
       if (!existsSync(uploadsDir)) {
         mkdirSync(uploadsDir, { recursive: true });
       }
@@ -85,7 +85,7 @@ export class ProductsService {
     const product = await this.findOne(id);
     // Si el producto tiene una foto, la elimina del sistema de archivos.
     if (product && product.fotoUrl && typeof product.fotoUrl === "string") {
-      const uploadsDir = join(__dirname, "..", "..", "uploads");
+      const uploadsDir = join(process.cwd(), "uploads");
       const path = join(uploadsDir, product.fotoUrl);
       if (existsSync(path)) {
         unlinkSync(path);
