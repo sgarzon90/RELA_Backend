@@ -5,8 +5,9 @@ generator client {
 
 // Define la fuente de datos de la base de datos.
 datasource db {
-  provider = "sqlite" // Usa SQLite como proveedor de la base de datos.
-  url      = env("DATABASE_URL") // La URL de la base de datos se obtiene de las variables de entorno.
+  provider     = "postgresql"
+  url          = env("DATABASE_URL")
+  relationMode = "prisma"
 }
 
 // Define el modelo de Producto.
