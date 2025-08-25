@@ -37,6 +37,7 @@
     "@nestjs/cli": "^10.4.5",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
+    "@types/multer": "^2.0.0",
     "eslint": "^9.7.0",
     "prettier": "^3.3.3",
     "prisma": "^5.18.0",
